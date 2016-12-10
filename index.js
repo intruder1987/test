@@ -22,11 +22,10 @@ var Shop = (function(){
                 return 0;
             }
 
-            var sum = 0;
-            data.forEach(function(item){
+            return data.reduce(function(sum, item){
                 sum += currency.convertUsdTo(item.price);
-            });
-            return sum;
+                return sum;
+            }, 0);
         }
     }
 })();
