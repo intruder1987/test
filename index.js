@@ -14,16 +14,18 @@ var Shop = (function(){
     var currency = new Currency();
     return {
         changeCurrency: function (c) {
-            currency = c;
+            currency = c instanceof Currency ? c : new Currency();
             return this;
         },
         getTotalCardPrice: function (data) {
-            if (!data || !data.length) {
+            if (!Array.isArray(data)) {
                 return 0;
             }
 
             return data.reduce(function(sum, item){
-                sum += currency.convertUsdTo(item.price);
+                if (item && typeof item.price === 'number' && !isNaN(item.price) && isFinite(item.price)) { //проверка на число с отсечением NaN и Infinity
+                    sum += currency.convertUsdTo(item.price);
+                }
                 return sum;
             }, 0);
         }
@@ -36,41 +38,35 @@ Currency.prototype.convertUsdTo = function(price){
 };
 
 function CurrencyRubles() {};
-CurrencyRubles.prootype = Object.create(Currency.prototype);
+CurrencyRubles.prototype = Object.create(Currency.prototype);
 CurrencyRubles.prototype.convertUsdTo = function(price){
     return price * USDTORUBLES; // здесь я делаю якобы конвертацию, но на самом деле просто умножаю на константу;
 };
 
 function CurrencyEuros() {};
-CurrencyEuros.prootype = Object.create(Currency.prototype);
+CurrencyEuros.prototype = Object.create(Currency.prototype);
 CurrencyEuros.prototype.convertUsdTo = function(price){
     return price * USDTOEUROS; // здесь я делаю якобы конвертацию, но на самом деле просто умножаю на константу;
 };
 
 function CurrencyPound() {};
-CurrencyPound.prootype = Object.create(Currency.prototype);
+CurrencyPound.prototype = Object.create(Currency.prototype);
 CurrencyPound.prototype.convertUsdTo = function(price){
     return price * USDTOPOUNDS; // здесь я делаю якобы конвертацию, но на самом деле просто умножаю на константу;
 };
 
 function CurrencyYens() {};
-CurrencyYens.prootype = Object.create(Currency.prototype);
+CurrencyYens.prototype = Object.create(Currency.prototype);
 CurrencyYens.prototype.convertUsdTo = function(price){
     return price * USDTOYENS; // здесь я делаю якобы конвертацию, но на самом деле просто умножаю на константу;
 };
 
-var dollars = new Currency();
-var rubles = new CurrencyRubles();
-var euros = new CurrencyEuros();
-var pounds = new CurrencyPound();
-var yens = new CurrencyYens();
-
 var totalCartPrice = {
-    rubles: Shop.changeCurrency(rubles).getTotalCardPrice(selectedCart),
-    euros: Shop.changeCurrency(euros).getTotalCardPrice(selectedCart),
-    dollars: Shop.changeCurrency(dollars).getTotalCardPrice(selectedCart),
-    pounds: Shop.changeCurrency(pounds).getTotalCardPrice(selectedCart),
-    yens: Shop.changeCurrency(yens).getTotalCardPrice(selectedCart)
+    rubles: Shop.changeCurrency(new CurrencyRubles()).getTotalCardPrice(selectedCart),
+    euros: Shop.changeCurrency(new CurrencyEuros()).getTotalCardPrice(selectedCart),
+    dollars: Shop.changeCurrency(new Currency()).getTotalCardPrice(selectedCart),
+    pounds: Shop.changeCurrency(new CurrencyPound()).getTotalCardPrice(selectedCart),
+    yens: Shop.changeCurrency(new CurrencyYens()).getTotalCardPrice(selectedCart)
 };
 
 console.log(totalCartPrice);
